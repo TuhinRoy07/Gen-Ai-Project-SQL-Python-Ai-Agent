@@ -128,6 +128,7 @@ The SQLite table is named `employees` and contains the following columns:
 - Email addresses must be unique.
 - The application uses OpenAI function calling to safely perform database actions.
 - Destructive operations such as delete are only executed when the request clearly identifies the employee.
+CREATED BY - TUHIN ROY.
 
 ## License
 
