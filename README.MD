@@ -1,135 +1,253 @@
-# AI Employee Database Agent
+# 🤖 AI Employee Database Agent
 
-This project is a Python-based AI assistant that lets users manage an employee database using natural-language requests. Instead of writing SQL manually, the user asks the agent to create, read, update, delete, or search employee records, and the AI uses OpenAI function calling to perform the correct database action.
+> Manage an employee database by **talking to it**. Ask in plain English, and an AI agent turns your request into safe, structured database operations — no SQL required.
 
-## Features
 
-- Natural-language employee management via AI
-- SQLite database backend
-- Create, read, update, and delete employee records
-- Search employees by name, department, city, and salary range
-- Get employee counts and highest salary information
-- Streamlit web interface for easy interaction
-- Optional command-line agent mode
 
-## Tech Stack
+---
 
-- Python
-- OpenAI API
-- SQLite
-- Streamlit
-- python-dotenv
+## 📌 Overview
 
-## Project Structure
+**AI Employee Database Agent** is a Python application that connects a large language model to a SQLite database using **OpenAI function calling**.
 
-- `agent.py` — defines the OpenAI tool-calling workflow and the `ask_agent()` function.
-- `app.py` — Streamlit UI for interacting with the AI employee database agent.
-- `database.py` — SQLite database logic and employee-related CRUD/search functions.
-- `test_agent.py` — sample script to test the AI agent in terminal mode.
-- `test_database.py` — sample script to test database operations.
-- `employees.db` — SQLite database file created automatically when the app runs.
-- `requirements.txt` — project dependencies.
+Instead of writing queries like `SELECT * FROM employees WHERE city = 'Kolkata'`, you simply type:
 
-## How It Works
+> *"Find employees from Kolkata."*
 
-1. The user enters a request in natural language.
-2. The AI model receives the request and decides which function to call.
-3. The chosen Python function interacts with the SQLite database.
-4. The result is sent back to the AI model.
-5. The AI responds in a human-friendly way.
+The model decides which tool to call, your Python code executes it against the database, and the model replies in natural language.
 
-This means the user never needs to write raw SQL queries directly.
+**Key design idea:** the AI **never writes or runs raw SQL**. It can only call a fixed set of predefined, parameterized Python functions — a safer and more predictable pattern than letting an LLM generate queries.
 
-## Installation
+---
 
-1. Open a terminal in the project folder.
-2. Create a virtual environment:
+## ✨ Features
+
+- 💬 **Natural-language interface** — manage data by chatting
+- 🗃️ **Full CRUD** — create, read, update, and delete employee records
+- 🔎 **Flexible search** — by name, department, city, or salary range
+- 📊 **Quick analytics** — total headcount and highest-paid employee
+- 🧰 **12 strictly-typed tools** using OpenAI's `strict` function-calling schemas
+- 🌐 **Streamlit web app** with a live employee table
+- ⌨️ **Terminal mode** for quick testing
+- 🔒 **Parameterized SQL** (`?` placeholders) to prevent SQL injection
+
+---
+
+## 🏗️ Architecture
+
+```mermaid
+flowchart LR
+    U[👤 User] -->|natural language| S[Streamlit UI<br/>app.py]
+    S --> A[Agent loop<br/>agent.py]
+    A <-->|tool calls / results| O[(OpenAI Model)]
+    A -->|Python function call| D[database.py]
+    D <--> DB[(SQLite<br/>employees.db)]
+    A -->|final answer| S
+```
+
+**How a request flows:**
+
+1. You enter a request in the UI (or terminal).
+2. `ask_agent()` sends it to the model along with the list of available tools.
+3. The model responds with a tool call, e.g. `search_by_city(city="Kolkata")`.
+4. The matching Python function runs against SQLite and returns a result.
+5. The result is fed back to the model.
+6. The loop repeats until the model has no more tools to call, then returns a friendly answer.
+
+---
+
+## 🧰 Available Tools
+
+| Tool | What it does |
+|---|---|
+| `create_employee` | Add a new employee |
+| `get_employee` | Fetch one employee by ID |
+| `get_all_employees` | List every employee |
+| `update_employee` | Update an employee's details |
+| `delete_employee` | Remove an employee by ID |
+| `search_by_name` | Partial name search |
+| `search_by_department` | Filter by department |
+| `search_by_city` | Filter by city |
+| `search_by_salary` | Filter by salary range (min–max) |
+| `search_department_salary` | Employees in a department earning at least a given salary |
+| `count_employees` | Total number of employees |
+| `highest_salary` | Employee with the highest salary |
+
+---
+
+## 🗄️ Database Schema
+
+Table: **`employees`**
+
+| Column | Type | Constraints |
+|---|---|---|
+| `id` | INTEGER | Primary key, auto-increment |
+| `name` | TEXT | Required |
+| `email` | TEXT | Required, **unique** |
+| `department` | TEXT | Required |
+| `salary` | REAL | Required |
+| `city` | TEXT | Required |
+
+The table is created automatically on first run.
+
+---
+
+## 📁 Project Structure
+
+```
+.
+├── app.py               # Streamlit web interface
+├── agent.py             # Tool definitions + ask_agent() function-calling loop
+├── database.py          # SQLite connection, CRUD and search functions
+├── test_agent.py        # Interactive terminal chat with the agent
+├── test_database.py     # Sample script to test database functions directly
+├── employees.db         # SQLite database file
+├── requirements.txt     # Python dependencies
+├── LICENSE
+└── README.md
+```
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Python 3.10 or higher
+- An [OpenAI API key](https://platform.openai.com/api-keys)
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/TuhinRoy07/Gen-Ai-Project-SQL-Python-Ai-Agent.git
+cd Gen-Ai-Project-SQL-Python-Ai-Agent
+```
+
+### 2. Create and activate a virtual environment
 
 ```bash
 python -m venv venv
 ```
 
-3. Activate the virtual environment:
-
-Windows:
-
+**Windows**
 ```bash
 venv\Scripts\activate
 ```
 
-Linux/macOS:
-
+**macOS / Linux**
 ```bash
 source venv/bin/activate
 ```
 
-4. Install the dependencies:
+### 3. Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## Environment Setup
+### 4. Add your API key
 
-Create a `.env` file in the project folder and add your OpenAI API key:
+Create a `.env` file in the project root:
 
 ```env
 OPENAI_API_KEY=your_openai_api_key_here
 ```
 
-## Run the Application
+> ⚠️ Never commit your `.env` file. Make sure it is listed in `.gitignore`.
 
-### Streamlit Web App
+### 5. Run the app
 
+**Web interface (recommended)**
 ```bash
 streamlit run app.py
 ```
+Then open the local URL shown in your terminal (usually `http://localhost:8501`).
 
-Then open the local URL shown in the terminal.
-
-### Command-Line Agent
-
+**Terminal mode**
 ```bash
-python agent.py
+python test_agent.py
+```
+Type `exit` to quit.
+
+---
+
+## 💡 Example Prompts
+
+| You say | What happens |
+|---|---|
+| "Show all employees." | Calls `get_all_employees` |
+| "How many employees are there?" | Calls `count_employees` |
+| "Find employees from Kolkata." | Calls `search_by_city` |
+| "Find employees earning between 40000 and 60000." | Calls `search_by_salary` |
+| "Who has the highest salary?" | Calls `highest_salary` |
+| "Add Riya as a Marketing employee with salary 47000." | Calls `create_employee` (the agent will ask for any missing fields like email/city) |
+| "Update employee 2 city to Mumbai." | Calls `update_employee` |
+| "Delete employee 5." | Calls `delete_employee` |
+
+---
+
+## 🛡️ Safety Notes
+
+- The model has **no direct database access** — it can only invoke the 12 defined functions.
+- All queries use **parameterized statements**.
+- The system prompt instructs the agent to **never invent employee data** and to make sure the employee is clearly identified **before any delete**.
+- Emails are enforced as **unique** at the database level.
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Language | Python |
+| AI | OpenAI API (Responses API + function calling) |
+| Database | SQLite (`sqlite3`) |
+| UI | Streamlit |
+| Config | python-dotenv |
+
+---
+
+## 🔧 Configuration
+
+The model name is set in `agent.py` inside `ask_agent()`. Change it to any function-calling-capable model available on your OpenAI account:
+
+```python
+response = client.responses.create(
+    model="your-model-name",
+    ...
+)
 ```
 
-Type your questions in the terminal, for example:
+---
 
-- Show all employees
-- Find employees from IT
-- Who has the highest salary?
-- Add Rahul as an IT employee with salary 55000
-- Delete employee 3
-- Update employee 1 salary to 65000
+## 🗺️ Roadmap / Ideas
 
-## Example Queries
+- [ ] Confirmation step (button or prompt) before delete operations
+- [ ] Make `update_employee` fields optional for partial updates
+- [ ] Add a max-iteration limit and error handling to the agent loop
+- [ ] Conversation memory across multiple turns
+- [ ] Pin dependency versions in `requirements.txt`
+- [ ] Unit tests with `pytest`
+- [ ] Export results to CSV / Excel
+- [ ] Docker support
 
-- "Show all employees."
-- "How many employees are there?"
-- "Find employees from Kolkata."
-- "Find employees earning between 40000 and 60000."
-- "Add Riya as a Marketing employee with salary 47000."
-- "Update employee 2 city to Mumbai."
-- "Delete employee 5."
+---
 
-## Database Schema
+## 🤝 Contributing
 
-The SQLite table is named `employees` and contains the following columns:
+Suggestions and improvements are welcome. Fork the repo, create a feature branch, and open a pull request.
 
-- `id` — integer primary key
-- `name` — employee name
-- `email` — unique email address
-- `department` — department name
-- `salary` — employee salary
-- `city` — employee city
+---
 
-## Notes
+## 📄 License
 
-- Email addresses must be unique.
-- The application uses OpenAI function calling to safely perform database actions.
-- Destructive operations such as delete are only executed when the request clearly identifies the employee.
-CREATED BY - TUHIN ROY.
+This project is licensed under the terms of the [LICENSE](LICENSE) file and is intended for educational and demonstration purposes.
 
-## License
+---
 
-This project is for educational and demonstration purposes.
+## 👤 Author
+
+**Tuhin Roy**
+- GitHub: [@TuhinRoy07](https://github.com/TuhinRoy07)
+
+⭐ If you found this project useful, consider giving it a star!
