@@ -116,14 +116,9 @@ The table is created automatically on first run.
 - Python 3.10 or higher
 - An [OpenAI API key](https://platform.openai.com/api-keys)
 
-### 1. Clone the repository
 
-```bash
-git clone https://github.com/TuhinRoy07/Gen-Ai-Project-SQL-Python-Ai-Agent.git
-cd Gen-Ai-Project-SQL-Python-Ai-Agent
-```
 
-### 2. Create and activate a virtual environment
+### 1. Create and activate a virtual environment
 
 ```bash
 python -m venv venv
@@ -139,13 +134,13 @@ venv\Scripts\activate
 source venv/bin/activate
 ```
 
-### 3. Install dependencies
+### 2. Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. Add your API key
+### 3. Add your API key
 
 Create a `.env` file in the project root:
 
@@ -155,7 +150,7 @@ OPENAI_API_KEY=your_openai_api_key_here
 
 > ⚠️ Never commit your `.env` file. Make sure it is listed in `.gitignore`.
 
-### 5. Run the app
+### 4. Run the app
 
 **Web interface (recommended)**
 ```bash
